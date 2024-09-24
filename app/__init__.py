@@ -1,8 +1,11 @@
 import flask
 import psycopg2
+import bcrypt 
 
+
+#addinfo
 def addinfo(info):
-
+    
     fname=info.get("fname")
     lname=info.get("lname")
     city=info.get("city")
@@ -11,37 +14,63 @@ def addinfo(info):
     age=info.get("age")
     dob=info.get("dob")
 
-    Username=info.get("username")
-    ID=info.get("ids")
-    Password=info.get("passwords")
-
-    
+    username=flask.session.get("username")
     conn=psycopg2.connect(URL)
     cursor=conn.cursor()
-    cursor.execute("select * from person_information where firstname='Rohan';")
+    cursor.execute("select * from person_information where username=%s;", (username,))
     info= cursor.fetchall()
-    cursor.execute("INSERT INTO person_information (Firstname, Lastname, city, statee, country, age, dob)VALUES (%s, %s, %s, %s, %s, %s, %s);",
-                   (fname, lname, city, state, country, age, dob))
-    conn.commit()
+    if info == []:
 
+        cursor.execute("INSERT INTO person_information (username, Firstname, Lastname, city, statee, country, age, dob)VALUES (%s, %s, %s, %s, %s, %s, %s, %s);",
+                       (username, fname, lname, city, state, country, age, dob))
+        conn.commit()
+    else:
+        cursor.execute("update person_information set Firstname=%s, Lastname=%s, city=%s, statee=%s, country=%s, age=%s, dob=%s where username=%s",
+                       ( fname, lname, city, state, country, age, dob, username))
+        conn.commit()
     conn.close()
+    return flask.redirect("/")
 
 app = flask.Flask(__name__)
 app.config['SECRET_KEY']= 'jhgfds'
 URL='postgresql://mathobotix.irvine.lab:VBQRvxA2dP9i@ep-shrill-hill-95052366.us-west-2.aws.neon.tech/neondb?sslmode=require'
+salt = bcrypt.gensalt() 
+
+
+
 @app.route("/login")
 def login():
-    return flask.render_template("login.html")
-@app.route("/signup")
-def signup():
-    return flask.render_template("signup.html")
-@app.route("/")
-def home_view():
     if flask.session.get("is_logged_in"):
-        return flask.render_template("index.html")
+        return flask.render_template("homepage.html")
     else:
         return flask.render_template("login.html")
-        
+@app.route("/signup")
+def signup():
+    if flask.session.get("is_logged_in"):
+        return flask.render_template("homepage.html")
+    else:
+        return flask.render_template("signup.html")
+
+@app.route("/infoform")
+def infoform():
+    if flask.session.get("is_logged_in"):
+        return flask.render_template("info_form.html")
+    else:
+        return flask.render_template("login.html")
+@app.route("/")
+def homepage():
+    if flask.session.get("is_logged_in"):
+        username=flask.session.get("username")
+        conn=psycopg2.connect(URL)
+        cursor=conn.cursor()
+        cursor.execute("select * from person_information where username=%s;", (username,))
+        info= cursor.fetchall() [0]  
+        return flask.render_template("homepage.html", datainfo=info)
+    else:
+        return flask.render_template("login.html")
+
+
+
 
 
 
@@ -50,14 +79,41 @@ def home_view():
 def infolocation():
     info=flask.request.form
     
-    addinfo(info)
+    return addinfo(info)
 
+
+#signup
+@app.route("/signup_page", methods=["POST"])
+def signups():
+    info=flask.request.form
+    username=info.get("email")
+    password=info.get("psw")
+
+#hashing function    
+    conn=psycopg2.connect(URL)
+    cursor=conn.cursor()
+    cursor.execute("select * from login where username=%s;", (username,))
+    info= cursor.fetchall()
+    if info != []:
+        return "username taken"
+    else:
+        bytes = password.encode('utf-8') 
+        hash = bcrypt.hashpw(bytes, salt)
+        hash=hash.decode("utf-8")
+        cursor.execute("INSERT INTO login (username, passwords)VALUES (%s, %s);",(username, hash))
+        conn.commit()
+        
+        return flask.render_template("login.html")
+
+
+#login    
 @app.route("/logins", methods=["POST"])
 def logins():
     info=flask.request.form
     username=info.get("uname")
     password=info.get("psw")
 
+#hash verification
     conn=psycopg2.connect(URL)
     cursor=conn.cursor()
     cursor.execute("select * from login where username=%s;", (username,))
@@ -65,11 +121,17 @@ def logins():
     if info == []:
         return "incorrect username or password"
     else:
-        if password == info[0][3]:
+        hash = info[0][2]
+        hash=hash.encode("utf-8")
+        userBytes = password.encode('utf-8') 
+        if bcrypt.checkpw(userBytes, hash)  :
             flask.session["is_logged_in"]=True
-            return flask.render_template("index.html")
+            flask.session["username"]=username
+            return flask.render_template("homepage.html")
         else:
             return "incorrect username or password"
+
+#signout
 @app.route("/signout")
 def signout():
     flask.session.clear()

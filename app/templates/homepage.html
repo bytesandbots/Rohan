@@ -36,37 +36,19 @@ body {
 <body>
 
 <div class="topnav">
-  <a href="/">Home</a>
+  <a class="active" href="/">Home</a>
   <a href="/infoform">Info Form</a>
-  <a class="active" href="/login">Login</a>
+  <a href="/login">Login</a>
   <a href="/signup">Signup</a>
   <a href="/signout">Signout</a>
   
 </div>
 
 <div style="padding-left:16px">
+  <h2>Welcome To My Website</h2>
+  <p>Send your information by clicking on the info form</p>
+  <p>{{datainfo}}</p>
 </div>
 
 </body>
 </html>
-
-<form action="/logins" method="post">
-  <div class="imgcontainer">
-  </div>
-
-  <div class="container">
-    <label for="uname"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="uname" required>
-
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" required>
-
-    <button type="submit">Login</button>
-
-  </div>
-
-  <div class="container" style="background-color:#f1f1f1">
-	<a href="/signup">if you don't have an account, sign up here</a>
-
-  </div>
-</form>
