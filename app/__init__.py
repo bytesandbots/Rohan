@@ -36,8 +36,24 @@ app.config['SECRET_KEY']= 'jhgfds'
 URL='postgresql://mathobotix.irvine.lab:VBQRvxA2dP9i@ep-shrill-hill-95052366.us-west-2.aws.neon.tech/neondb?sslmode=require'
 salt = bcrypt.gensalt() 
 
+#deleting your account
+def deleteuser():
+    sername=flask.session.get("username")
+    conn=psycopg2.connect(URL)
+    cursor=conn.cursor()
+    cursor.execute("select * from person_information where username=%s;", (username,))
+    info= cursor.fetchall()
+    
+    cursor.execute("DELETE FROM person_information (username, Firstname, Lastname, city, statee, country, age, dob)VALUES (%s, %s, %s, %s, %s, %s, %s, %s);",
+                       (username, fname, lname, city, state, country, age, dob)
 
 
+
+
+
+    return flask.render_template("login.html")
+
+    
 @app.route("/login")
 def login():
     if flask.session.get("is_logged_in"):
@@ -64,12 +80,18 @@ def homepage():
         conn=psycopg2.connect(URL)
         cursor=conn.cursor()
         cursor.execute("select * from person_information where username=%s;", (username,))
-        info= cursor.fetchall() [0]  
-        return flask.render_template("homepage.html", datainfo=info)
+        info= cursor.fetchall()
+
+        if info ==[]:
+            return flask.render_template("homepage.html", datainfo=info, filled=False)
+        info=info[0]
+        for collum in info:
+            if collum == "":
+                return flask.render_template("homepage.html", datainfo=info, filled=False)
+            
+        return flask.render_template("homepage.html", datainfo=info, filled=True)
     else:
         return flask.render_template("login.html")
-
-
 
 
 
@@ -127,7 +149,7 @@ def logins():
         if bcrypt.checkpw(userBytes, hash)  :
             flask.session["is_logged_in"]=True
             flask.session["username"]=username
-            return flask.render_template("homepage.html")
+            return flask.redirect("/")
         else:
             return "incorrect username or password"
 
