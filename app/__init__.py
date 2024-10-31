@@ -1,6 +1,7 @@
 import flask
 import psycopg2
 import bcrypt 
+import datetime
 
 
 #addinfo
@@ -13,7 +14,8 @@ def addinfo(info):
     country=info.get("country")
     age=info.get("age")
     dob=info.get("dob")
-
+    role=info.get("role")
+    
     username=flask.session.get("username")
     conn=psycopg2.connect(URL)
     cursor=conn.cursor()
@@ -21,12 +23,12 @@ def addinfo(info):
     info= cursor.fetchall()
     if info == []:
 
-        cursor.execute("INSERT INTO person_information (username, Firstname, Lastname, city, statee, country, age, dob)VALUES (%s, %s, %s, %s, %s, %s, %s, %s);",
-                       (username, fname, lname, city, state, country, age, dob))
+        cursor.execute("INSERT INTO person_information (username, Firstname, Lastname, city, statee, country, age, dob, role)VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);",
+                       (username, fname, lname, city, state, country, age, dob, role))
         conn.commit()
     else:
-        cursor.execute("update person_information set Firstname=%s, Lastname=%s, city=%s, statee=%s, country=%s, age=%s, dob=%s where username=%s",
-                       ( fname, lname, city, state, country, age, dob, username))
+        cursor.execute("update person_information set Firstname=%s, Lastname=%s, city=%s, statee=%s, country=%s, age=%s, dob=%s, role=%s where username=%s",
+                       ( fname, lname, city, state, country, age, dob, role, username))
         conn.commit()
     conn.close()
     return flask.redirect("/")
@@ -36,7 +38,26 @@ app.config['SECRET_KEY']= 'jhgfds'
 URL='postgresql://mathobotix.irvine.lab:VBQRvxA2dP9i@ep-shrill-hill-95052366.us-west-2.aws.neon.tech/neondb?sslmode=require'
 salt = bcrypt.gensalt() 
 
+#deleting your account
+@app.route("/deleteuser")
+def deleteuser():
+    username=flask.session.get("username")
+    conn=psycopg2.connect(URL)
+    cursor=conn.cursor()    
+    cursor.execute("DELETE FROM login WHERE username = %s ",
+                       (username, ))
+    cursor.execute("DELETE FROM person_information WHERE username = %s ",
+                       (username, ))
+    conn.commit()
+    conn.close()
 
+    
+    return flask.redirect("/signout")
+    
+
+    
+    return flask.redirect("/signout")
+    
 
 @app.route("/login")
 def login():
@@ -49,7 +70,7 @@ def signup():
     if flask.session.get("is_logged_in"):
         return flask.render_template("homepage.html")
     else:
-        return flask.render_template("signup.html")
+        return flask.render_template("signup2.html")
 
 @app.route("/infoform")
 def infoform():
@@ -57,6 +78,27 @@ def infoform():
         return flask.render_template("info_form.html")
     else:
         return flask.render_template("login.html")
+    
+@app.route("/yourinfo")
+def yourinfo():
+    if flask.session.get("is_logged_in"):
+        username=flask.session.get("username")
+        conn=psycopg2.connect(URL)
+        cursor=conn.cursor()
+        cursor.execute("select * from person_information where username=%s;", (username,))
+        info= cursor.fetchall()
+
+        if info ==[]:
+            return flask.render_template("your_info.html", datainfo=info, filled=False)
+        info=info[0]
+        for collum in info:
+            if collum == "":
+                return flask.render_template("your_info.html", datainfo=info, filled=False)
+            
+        return flask.render_template("your_info.html", datainfo=info, filled=True)
+    else:
+        return flask.render_template("login.html")    
+    
 @app.route("/")
 def homepage():
     if flask.session.get("is_logged_in"):
@@ -64,14 +106,74 @@ def homepage():
         conn=psycopg2.connect(URL)
         cursor=conn.cursor()
         cursor.execute("select * from person_information where username=%s;", (username,))
-        info= cursor.fetchall() [0]  
-        return flask.render_template("homepage.html", datainfo=info)
+        info= cursor.fetchall()
+
+<<<<<<< HEAD
+        cursor.execute("select * from timeworked where username=%s order by timein DESC;", (username,))
+        times=cursor.fetchone()
+        filled=False
+        if times==[]:
+            filled=True
+
+        
+        if info ==[]:
+            return flask.render_template("homepage.html", datainfo=info, filled=filled)
+        info=info[0]
+        for collum in info:
+            if collum == "":
+                return flask.render_template("homepage.html", datainfo=info, filled=filled)
+            
+        return flask.render_template("homepage.html", datainfo=info, filled=True, start=False)
+=======
+        if info ==[]:
+            return flask.render_template("homepage.html", datainfo=info, filled=False)
+        info=info[0]
+        for collum in info:
+            if collum == "":
+                return flask.render_template("homepage.html", datainfo=info, filled=False)
+            
+        return flask.render_template("homepage.html", datainfo=info, filled=True)
+>>>>>>> ea27c0ea94fc2c11879b189301a82d9ba92a9a28
     else:
         return flask.render_template("login.html")
 
 
 
+#time worked
 
+def timein():
+    from datetime import datetime
+    timeins = datetime.now()
+    return timeins
+
+
+
+    
+def timeout():
+    from datetime import datetime
+    timeouts = datetime.now()
+    return timeouts
+
+def total_hrs():
+    total = timeout - timein
+    return total
+
+
+
+
+#recording hrs
+@app.route("/addtime", methods=["POST"])
+def addtime():
+    username=flask.session.get("username")
+    conn=psycopg2.connect(URL)
+    cursor=conn.cursor()
+
+    t=timein()
+    date=datetime.datetime.now().date()
+    cursor.execute("INSERT INTO timeworked (username, timein, timeout, total, dates)VALUES (%s, %s, %s, %s, %s);",
+                           (username, t, None, None, date))
+    conn.commit()
+    return flask.redirect("/")
 
 
 
@@ -127,7 +229,7 @@ def logins():
         if bcrypt.checkpw(userBytes, hash)  :
             flask.session["is_logged_in"]=True
             flask.session["username"]=username
-            return flask.render_template("homepage.html")
+            return flask.redirect("/")
         else:
             return "incorrect username or password"
 
@@ -137,6 +239,8 @@ def signout():
     flask.session.clear()
     return flask.render_template("login.html")
 
+
+    
 
 
     

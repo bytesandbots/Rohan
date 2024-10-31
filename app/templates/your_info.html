@@ -4,7 +4,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-
  </head> 
 
 
@@ -44,54 +43,36 @@ body {
 <body>
 
 <div class="topnav">
-  <a class="active" href="/">Home</a>
+  <a href="/">Home</a>
   <a href="/infoform">Info Form</a>
   <a href="/login">Login</a>
   <a href="/signup">Signup</a>
   <a href="/signout">Signout</a>
-  <a href="/yourinfo">Your Info</a>
+  <a class="active" href="/yourinfo">Your Info</a>
 
   
 </div>
 
 <div style="padding-left:16px">
-<<<<<<< HEAD
   <h2>Welcome {{datainfo[1]}} {{datainfo[2]}}</h2>
-{%if filled == true %}
-	<p>Start logging hours here</p>
-    <form action="/addtime" method="POST">
-	
-		{%if start == true%}
-		    <button type="submit">STOP</button>
-
-		{%else%}
-			<button type="submit">START</button>
-			
-		{%endif%}
-	</form>
-
-{%else%}
-	<p>	Fill out form to start loggin hours</p>
-{%endif%}
-=======
-  <h2>Welcome To My Website</h2>
 {%if filled == true %}
 	<p>Form is filled</p>
 	<p>Your Info</p>
-	<p>Username:{{datainfo[0]}}</p>  
-	<p>First Name:{{datainfo[1]}}</p>
-	<p>Last Name:{{datainfo[2]}}</p>
-	<p>City:{{datainfo[3]}}</p>
-	<p>State:{{datainfo[4]}}</p>
-	<p>Country:{{datainfo[5]}}</p>
-	<p>Age:{{datainfo[6]}}</p>
-	<p>Date Of Birth:{{datainfo[7]}}</p>
+	<p>Username: {{datainfo[0]}}</p>  
+	<p>First Name: {{datainfo[1]}}</p>
+	<p>Last Name: {{datainfo[2]}}</p>
+	<p>City: {{datainfo[3]}}</p>
+	<p>State: {{datainfo[4]}}</p>
+	<p>Country: {{datainfo[5]}}</p>
+	<p>Age: {{datainfo[6]}}</p>
+	<p>Date Of Birth: {{datainfo[7]}}</p>
+	<p>Role: {{datainfo[8]}}</p>
 
+	
 {%else%}
 	<p>	Fill out info form to see information submitted</p>
 {%endif%}
 	<a href="/deleteuser">Delete Account</a>
->>>>>>> ea27c0ea94fc2c11879b189301a82d9ba92a9a28
 
 
 </div>
