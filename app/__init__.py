@@ -68,9 +68,9 @@ def login():
 @app.route("/signup")
 def signup():
     if flask.session.get("is_logged_in"):
-        return flask.render_template("homepage.html")
+        return flask.render_template("homepage.html", datainfo=[])
     else:
-        return flask.render_template("signup2.html")
+        return flask.render_template("signup.html")
 
 @app.route("/infoform")
 def infoform():
@@ -107,33 +107,22 @@ def homepage():
         cursor=conn.cursor()
         cursor.execute("select * from person_information where username=%s;", (username,))
         info= cursor.fetchall()
-
-<<<<<<< HEAD
-        cursor.execute("select * from timeworked where username=%s order by timein DESC;", (username,))
-        times=cursor.fetchone()
-        filled=False
-        if times==[]:
-            filled=True
-
+        filled=True
         
         if info ==[]:
-            return flask.render_template("homepage.html", datainfo=info, filled=filled)
-        info=info[0]
-        for collum in info:
-            if collum == "":
-                return flask.render_template("homepage.html", datainfo=info, filled=filled)
+            filled=False
+        cursor.execute("select timeout from timeworked where username=%s order by timein DESC;", (username,))
+        times=cursor.fetchone()[0]
+        print(times)
+
+        checkedin=False
+        if times==None:
+            checkedin=True
+
+        
             
-        return flask.render_template("homepage.html", datainfo=info, filled=True, start=False)
-=======
-        if info ==[]:
-            return flask.render_template("homepage.html", datainfo=info, filled=False)
-        info=info[0]
-        for collum in info:
-            if collum == "":
-                return flask.render_template("homepage.html", datainfo=info, filled=False)
-            
-        return flask.render_template("homepage.html", datainfo=info, filled=True)
->>>>>>> ea27c0ea94fc2c11879b189301a82d9ba92a9a28
+        return flask.render_template("homepage.html", datainfo=info, filled=filled, start=checkedin)
+
     else:
         return flask.render_template("login.html")
 
@@ -172,6 +161,24 @@ def addtime():
     date=datetime.datetime.now().date()
     cursor.execute("INSERT INTO timeworked (username, timein, timeout, total, dates)VALUES (%s, %s, %s, %s, %s);",
                            (username, t, None, None, date))
+    conn.commit()
+    return flask.redirect("/")
+
+#recording hrs out
+@app.route("/addtimeout", methods=["POST"])
+def addtimeout():
+    username=flask.session.get("username")
+    conn=psycopg2.connect(URL)
+    cursor=conn.cursor()
+
+    cursor.execute("select timein from timeworked where username=%s order by timein DESC;", (username,))
+    timein=cursor.fetchone()[0]
+
+    
+    to=timeout()
+    date=datetime.datetime.now().date()
+    cursor.execute("UPDATE timeworked SET timeout = %s WHERE username = %s and timein = %s;",
+                           (to, username, timein))
     conn.commit()
     return flask.redirect("/")
 

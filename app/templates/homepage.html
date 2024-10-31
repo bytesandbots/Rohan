@@ -55,43 +55,26 @@ body {
 </div>
 
 <div style="padding-left:16px">
-<<<<<<< HEAD
+
   <h2>Welcome {{datainfo[1]}} {{datainfo[2]}}</h2>
 {%if filled == true %}
 	<p>Start logging hours here</p>
-    <form action="/addtime" method="POST">
-	
 		{%if start == true%}
-		    <button type="submit">STOP</button>
+			<form action="/addtimeout" method="POST">
+			<button type="submit">STOP</button>
+			</form>	
 
-		{%else%}
+{%else%}	
+		<form action="/addtime" method="POST">
 			<button type="submit">START</button>
-			
+			</form>	
 		{%endif%}
-	</form>
+	
 
 {%else%}
 	<p>	Fill out form to start loggin hours</p>
 {%endif%}
-=======
-  <h2>Welcome To My Website</h2>
-{%if filled == true %}
-	<p>Form is filled</p>
-	<p>Your Info</p>
-	<p>Username:{{datainfo[0]}}</p>  
-	<p>First Name:{{datainfo[1]}}</p>
-	<p>Last Name:{{datainfo[2]}}</p>
-	<p>City:{{datainfo[3]}}</p>
-	<p>State:{{datainfo[4]}}</p>
-	<p>Country:{{datainfo[5]}}</p>
-	<p>Age:{{datainfo[6]}}</p>
-	<p>Date Of Birth:{{datainfo[7]}}</p>
 
-{%else%}
-	<p>	Fill out info form to see information submitted</p>
-{%endif%}
-	<a href="/deleteuser">Delete Account</a>
->>>>>>> ea27c0ea94fc2c11879b189301a82d9ba92a9a28
 
 
 </div>
