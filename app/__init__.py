@@ -57,12 +57,33 @@ def deleteuser():
 
     
     return flask.redirect("/signout")
+
+
+#def clearhrs
+@app.route("/clearhrs")
+def clearhrs():
+    username=flask.session.get("username")
+    conn=psycopg2.connect(URL)
+    cursor=conn.cursor()    
+    cursor.execute("DELETE FROM timeworked WHERE username = %s ",
+                       (username, ))
+
+    conn.commit()
+    conn.close()
+
+    
+    return flask.redirect("/yourinfo")
+    
+
+    
+
+
     
 
 @app.route("/login")
 def login():
     if flask.session.get("is_logged_in"):
-        return flask.render_template("homepage.html")
+        return flask.redirect("/")
     else:
         return flask.render_template("login.html")
 @app.route("/signup")
@@ -87,15 +108,15 @@ def yourinfo():
         cursor=conn.cursor()
         cursor.execute("select * from person_information where username=%s;", (username,))
         info= cursor.fetchall()
-
+        total=totaltotalhrs()
         if info ==[]:
-            return flask.render_template("your_info.html", datainfo=info, filled=False)
+            return flask.render_template("your_info.html", datainfo=info, filled=False, totaltotal=total)
         info=info[0]
         for collum in info:
             if collum == "":
-                return flask.render_template("your_info.html", datainfo=info, filled=False)
+                return flask.render_template("your_info.html", datainfo=info, filled=False, totaltotal=total)
             
-        return flask.render_template("your_info.html", datainfo=info, filled=True)
+        return flask.render_template("your_info.html", datainfo=info, filled=True, totaltotal=total)
     else:
         return flask.render_template("login.html")    
     
@@ -106,7 +127,7 @@ def homepage():
         conn=psycopg2.connect(URL)
         cursor=conn.cursor()
         cursor.execute("select * from person_information where username=%s;", (username,))
-        info= cursor.fetchall()
+        info= cursor.fetchone()
         filled=True
         
         if info ==[]:
@@ -150,7 +171,7 @@ def total_hrs():
 
 
 
-#recording hrs
+#recording timein
 @app.route("/addtime", methods=["POST"])
 def addtime():
     username=flask.session.get("username")
@@ -164,7 +185,7 @@ def addtime():
     conn.commit()
     return flask.redirect("/")
 
-#recording hrs out
+#recording time out
 @app.route("/addtimeout", methods=["POST"])
 def addtimeout():
     username=flask.session.get("username")
@@ -176,15 +197,49 @@ def addtimeout():
 
     
     to=timeout()
+
+    total=to-timein
     date=datetime.datetime.now().date()
-    cursor.execute("UPDATE timeworked SET timeout = %s WHERE username = %s and timein = %s;",
-                           (to, username, timein))
+    cursor.execute("UPDATE timeworked SET timeout = %s, total= %s WHERE username = %s and timein = %s;",
+                           (to,total.seconds/60, username, timein))
     conn.commit()
     return flask.redirect("/")
 
 
+#recording total hrs
+@app.route("/totalhrs", methods=["POST"])
+def totalhrs():
+    username=flask.session.get("username")
+    conn=psycopg2.connect(URL)
+    cursor=conn.cursor()
 
-@app.route("/infolocation", methods=["POST"])
+    cursor.execute("select total from timeworked where username=%s order by timein DESC;", (username,))
+    timein=cursor.fetchone()[0]
+
+    
+    total=timeout-timein()
+    date=datetime.datetime.now().date()
+    cursor.execute("UPDATE timeworked SET total = %s WHERE username = %s and timein = %s and timeout = %s;",
+                           (total))
+
+#adding total hrs in total
+def totaltotalhrs():
+    username=flask.session.get("username")
+    conn=psycopg2.connect(URL)
+    cursor=conn.cursor()
+    cursor.execute("select total from timeworked where username=%s", (username, ))
+    total=cursor.fetchall()
+    totaltotal=0
+    for i in total:
+        if i[0]==None:
+            continue
+        else:
+            totaltotal+=i[0]
+    print (totaltotal/3600)
+    return totaltotal/3600
+
+
+app.route("/infolocation", methods=["POST"])
 def infolocation():
     info=flask.request.form
     
