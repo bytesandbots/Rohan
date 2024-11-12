@@ -133,13 +133,21 @@ def homepage():
         if info ==[]:
             filled=False
         cursor.execute("select timeout from timeworked where username=%s order by timein DESC;", (username,))
-        times=cursor.fetchone()[0]
-        print(times)
+        times=cursor.fetchone()
 
         checkedin=False
         if times==None:
-            checkedin=True
+            checkedin=False
 
+
+        else :
+            times = times[0]
+            if times==None:
+                checkedin=True
+        print(times)
+        print(checkedin)
+
+        
         
             
         return flask.render_template("homepage.html", datainfo=info, filled=filled, start=checkedin)
@@ -193,7 +201,16 @@ def addtimeout():
     cursor=conn.cursor()
 
     cursor.execute("select timein from timeworked where username=%s order by timein DESC;", (username,))
-    timein=cursor.fetchone()[0]
+    timein=cursor.fetchone()
+    if timein==None:
+            checkedin=True
+
+        
+    if (timein == None):
+        return flask.redirect("/")
+    else :
+        timein = timein[0]
+        
 
     
     to=timeout()
@@ -235,14 +252,14 @@ def totaltotalhrs():
             continue
         else:
             totaltotal+=i[0]
-    print (totaltotal/3600)
-    return totaltotal/3600
+    print (totaltotal/60)
+    return totaltotal/60
 
 
-app.route("/infolocation", methods=["POST"])
+@app.route("/infolocation", methods=["POST"])
 def infolocation():
     info=flask.request.form
-    
+    print("here")
     return addinfo(info)
 
 
