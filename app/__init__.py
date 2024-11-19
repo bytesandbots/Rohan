@@ -76,9 +76,55 @@ def clearhrs():
     
 
     
+#admin check
+def admincheck():
+    if flask.session.get("is_logged_in"):
+        username=flask.session.get("username")
+        conn=psycopg2.connect(URL)
+        cursor=conn.cursor()
+        cursor.execute("select role from login where username=%s;", (username,))
+        info= cursor.fetchall()
+        admin=False
+        if (info!=None):
+            if (info[0][0] == "Admin"):
+                admin=True
+        return admin
+                   
+                
+#render admin page
+@app.route("/admin")
+def admin():
+     if flask.session.get("is_logged_in"):
+        username=flask.session.get("username")
+        conn=psycopg2.connect(URL)
+        cursor=conn.cursor()
+        cursor.execute("select role from login where username=%s;", (username,))
+        info= cursor.fetchall()
+        print (info)
+        admin=False
+        if (info!=None):
+            if (info[0][0] == "Admin"):
+                admin=True
+        cursor.execute("select * from person_information;")
+        info= cursor.fetchall()
+        total=totaltotalhrs()
+        if info ==[]:
+            return flask.render_template("admin.html", datainfo=info, filled=False, totaltotal=total)
+        info=info[0]
+        for collum in info:
+            if collum == "":
+                return flask.render_template("admin.html", datainfo=info, filled=False, totaltotal=total)
+            
+
+        return flask.render_template("/admin.html", admin=admincheck())
 
 
-    
+
+
+
+
+
+        
 
 @app.route("/login")
 def login():
@@ -96,7 +142,8 @@ def signup():
 @app.route("/infoform")
 def infoform():
     if flask.session.get("is_logged_in"):
-        return flask.render_template("info_form.html")
+        admincheck
+        return flask.render_template("info_form.html", admin=admincheck())
     else:
         return flask.render_template("login.html")
     
@@ -116,7 +163,7 @@ def yourinfo():
             if collum == "":
                 return flask.render_template("your_info.html", datainfo=info, filled=False, totaltotal=total)
             
-        return flask.render_template("your_info.html", datainfo=info, filled=True, totaltotal=total)
+        return flask.render_template("your_info.html", datainfo=info, filled=True, totaltotal=total, admin=admincheck())
     else:
         return flask.render_template("login.html")    
     
@@ -149,8 +196,8 @@ def homepage():
 
         
         
-            
-        return flask.render_template("homepage.html", datainfo=info, filled=filled, start=checkedin)
+   
+        return flask.render_template("homepage.html", datainfo=info, filled=filled, start=checkedin, admin=admincheck())
 
     else:
         return flask.render_template("login.html")

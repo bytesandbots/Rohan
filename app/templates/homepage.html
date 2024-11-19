@@ -46,13 +46,11 @@ body {
 <div class="topnav">
   <a class="active" href="/">Home</a>
   <a href="/infoform">Info Form</a>
-  <a href="/login">Login</a>
-  <a href="/signup">Signup</a>
-  <a href="/signout">Signout</a>
   <a href="/yourinfo">Your Info</a>
-{%if admin == true %}
-  <a href="/All Hours">Your Info</a>
-{%endif%}
+  {%if admin == true %}
+    <a href="/admin">Admin</a>
+  {%endif%}
+  <a href="/signout">Signout</a>
   
 </div>
 
