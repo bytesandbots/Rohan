@@ -56,7 +56,6 @@ def deleteuser():
     
 
     
-    return flask.redirect("/signout")
 
 
 #def clearhrs
@@ -73,8 +72,17 @@ def clearhrs():
 
     
     return flask.redirect("/yourinfo")
+#def clear everyones hrs
+@app.route("/deleteallhrs")
+def deleteallhrs():
+    conn=psycopg2.connect(URL)
+    cursor=conn.cursor()    
+    cursor.execute("TRUNCATE TABLE timeworked;")
     
-
+    conn.commit()
+    conn.close()
+    return flask.redirect("/admin")
+ 
     
 #admin check
 def admincheck():
@@ -105,20 +113,22 @@ def admin():
         if (info!=None):
             if (info[0][0] == "Admin"):
                 admin=True
-        cursor.execute("select * from person_information;")
+        cursor.execute("select username, total from timeworked ", ())
         info= cursor.fetchall()
-        total=totaltotalhrs()
-        if info ==[]:
-            return flask.render_template("admin.html", datainfo=info, filled=False, totaltotal=total)
-        info=info[0]
-        for collum in info:
-            if collum == "":
-                return flask.render_template("admin.html", datainfo=info, filled=False, totaltotal=total)
-            
+        alltotals = {}
+        everyonetotal = 0
+        for username in info:
+            user, total = username
+            everyonetotal += total
+            if user in alltotals:
+                alltotals[user]+= int(total)
+                
+            else:
+                alltotals[user]=int(total)
+          
 
-        return flask.render_template("/admin.html", admin=admincheck())
-
-
+        return flask.render_template("/admin.html", admin=admincheck(), final_total=alltotals, everyonetotals=everyonetotal)
+ 
 
 
 
@@ -158,6 +168,7 @@ def yourinfo():
         total=totaltotalhrs()
         if info ==[]:
             return flask.render_template("your_info.html", datainfo=info, filled=False, totaltotal=total)
+   
         info=info[0]
         for collum in info:
             if collum == "":
@@ -222,6 +233,7 @@ def timeout():
 def total_hrs():
     total = timeout - timein
     return total
+
 
 
 
@@ -364,6 +376,7 @@ def logins():
 def signout():
     flask.session.clear()
     return flask.render_template("login.html")
+
 
 
     

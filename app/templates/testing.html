@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Table</title>
+    <style>
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be added here dynamically -->
+        </tbody>
+    </table>
+
+    <script>
+        // Sample dataset
+        const dataset = ["Apple", "Banana", "Cherry", "Date"];
+
+        // Get the <tbody> of the table
+        const tableBody = document.querySelector("#dataTable tbody");
+
+        // Loop through the dataset and create rows
+        for (let i = 0; i < dataset.length; i++) {
+            const row = document.createElement("tr");
+
+            // Create the index cell
+            const indexCell = document.createElement("td");
+            indexCell.textContent = i + 1; // Row number
+            row.appendChild(indexCell);
+
+            // Create the value cell
+            const valueCell = document.createElement("td");
+            valueCell.textContent = dataset[i]; // Dataset value
+            row.appendChild(valueCell);
+
+            // Add the row to the table body
+            tableBody.appendChild(row);
+        }
+    </script>
+
+</body>
+</html>

@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
 body {
   margin: 0;
@@ -33,6 +34,11 @@ body {
 }
 </style>
 </head>
+
+<head>
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.min.css">
+
+</head>
 <body>
 
 <div class="topnav">
@@ -59,17 +65,41 @@ table, th, td {
 
 <h1>Hours worked per person</h1>
 
-<table style="width:400px">
-  <tr>
-    <th>User</th>
-    <th>Hours</th>
-  </tr>
-  <tr>
-    <td>{{datainfo[0]}}</td>
-    <td>{{totaltotal}}</td>
-  </tr>
-</table>
+
+
+ <table id="dataTable">
+        <thead>
+            <tr>
+                <th>user</th>
+                <th>total minutes</th>
+            </tr>
+        </thead>
+        <tbody>
+		 {% for key, value in final_total.items() %}
+			
+             <tr>
+				<td>{{ key }}</td>
+				<td>{{ value }}</td>
+			</tr>
+		{% endfor %}
+			
+        </tbody>
+    </table>
+<p>total hours for everyone is:{{everyonetotals/60}}</p>
+<a href="/deleteallhrs">
+      <button>Delete Everyone's Hours</button>
+</a>
 
 
 </body>
+<footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/2.2.1/js/dataTables.min.js"></script>
+
+<script>
+let table = new DataTable('#dataTable');
+
+</script>
+</footer>
 </html>
