@@ -56,23 +56,58 @@ body {
 <body>
 
 <div class="topnav">
-  <a class="active" href="/">Home</a>
+  <a href="/">Home</a>
   <a href="/infoform">Info Form</a>
   <a href="/yourinfo">Your Info</a>
   {%if admin == true %}
     <a href="/admin">Admin</a>
   {%endif%}
-  <a href="/enrollment">Enrollment</a>  
+  <a class="active" href="/enrollment">Enrollment</a>
   <a href="/student">Students</a>
-
   <a href="/signout">Signout</a>
+
         <div class="profile">{{datainfo[1][0]}} {{datainfo[2][0]}}</div>
   
 </div>
 
 <div style="padding-left:16px">
+<h1>Enter student info</h1>
+<form action="/submitenrollment" method="POST">
+  <label for="fname">First name:</label><br>
+  <input type="text" id="fname" name="fname"><br>
 
-<h2>Welcome {{datainfo[1]}} {{datainfo[2]}}</h2>
+  <label for="lname">Last name:</label><br>
+  <input type="text" id="lname" name="lname"><br>
+
+  <label for="dob">Date of birth:</label><br>
+  <input type="text" id="dob" name="dob"><br>  
+  
+<label for="grade">Grade level:</label><br>
+  <select id="grade" name="grade" >
+    <option value="1">1st</option>
+    <option value="2">2nd</option>
+    <option value="3">3rd</option>
+    <option value="4">4th</option>
+    <option value="5">5th</option>
+    <option value="6">6th</option>
+    <option value="7">7th</option>
+    <option value="8">8th</option>
+    <option value="9">9th</option>
+    <option value="10">10th</option>
+    <option value="11">11th</option>
+    <option value="12">12th</option>
+
+  </select><br>
+
+  <label for="school">School:</label><br>
+  <input type="text" id="school" name="school"><br>
+
+  
+
+
+  <br><input type="submit" value="Submit">
+</form> 
+<p>SUBMIT ONCE FINISHED</p>
 
 
 

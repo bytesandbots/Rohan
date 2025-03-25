@@ -57,25 +57,48 @@ body {
   <a href="/">Home</a>
   <a href="/infoform">Info Form</a>
   <a href="/yourinfo">Your Info</a>
-  <a class="active" href="/admin">Admin</a>
+  {%if admin == true %}
+    <a href="/admin">Admin</a>
+  {%endif%}
   <a href="/enrollment">Enrollment</a>
-  <a href="/student">Students</a>
+  <a class="active" href="/student">Students</a>
   <a href="/signout">Signout</a>
 
 
   
 </div>
-
+<br>
 <div style="padding-left:16px">
+<form action="/searchstudents" method="POST">
+<input type="text" placeholder="Search.." name = "studentsearch">
+  <br><input type="submit" value="Submit">
+</form> 
+
+<table id = "myTable">
+
+
+ <thead>
+            <tr>
+                <th>Student</th>
+              
+            </tr>
+        </thead>
+        <tbody>
+		 {% for student in searchstudent %}
+
+             <tr>
+				<td><a href = "/studentpage/{{student[2]}}">{{ student[0] + " " + student[1]}}</a> </td>
+			</tr>
+		{% endfor %}
+
+        </tbody>
+
+
+</table>
 </div>
 
-<style>
-table, th, td {
-  border: 1px solid black;
-}
-</style>
-</head>
-<body>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/2.2.1/js/dataTables.min.js"></script>
 
-</body>
-</html>
+<script>let table = new DataTable('#myTable',{searching:false, paging:false})</script>
+
